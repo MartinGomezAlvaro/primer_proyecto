@@ -4,18 +4,36 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MainContainer } from '../MainContainers';
 import { useNavigation } from '@react-navigation/native';
+import { UserContext } from "../../context/UserContext";
+import { useContext } from "react";
 
 const Stack = createStackNavigator();
 
 export function LoginScreen() {
 
   const navigation = useNavigation();
+  const{correo, password, edad, nombre, setCorreo, setPassword, setEdad, setNombre} = useContext(UserContext);
   
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  
+  const loginNewUser = async () => {
+    if(correo === '' || password === ''){
+      alert('Por favor, rellene todos los campos')
+    }
+    else {
+      try {
+        await addDoc(collection(db, 'usuarios'),{
+          contrasena: password,
+          correo: correo,
+          edad: edad,
+          nombre: nombre
+        });
+        alert("Guardado exitosamente");
+        navigation.navigate('Main');
+      } catch (error) {
+        console.error("Error al guardar el usuario:", error);
+        // Manejar el error según sea necesario
+      }
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -23,17 +41,17 @@ export function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
-        onChangeText={setEmail}
-        value={email}
+        onChangeText={newValor => setCorreo(newValor)}
+        value={correo}
       />
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
-        onChangeText={setPassword}
+        onChangeText={newValor => setPassword(newValor)}
         value={password}
         secureTextEntry={true}
       />
-      <Button  name='Main' title='Acceder' onPress={() => navigation.navigate('Main')}/>
+      <Button  name='Main' title='Acceder' onPress={() => loginNewUser()}/>
     </View>
   );
 }
