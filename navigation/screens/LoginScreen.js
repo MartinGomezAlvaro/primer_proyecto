@@ -19,7 +19,7 @@ export function LoginScreen() {
       alert('Por favor, rellene todos los campos')
     }
     else {
-      try {
+      /*try {
         await addDoc(collection(db, 'usuarios'),{
           contrasena: password,
           correo: correo,
@@ -31,7 +31,7 @@ export function LoginScreen() {
       } catch (error) {
         console.error("Error al guardar el usuario:", error);
         // Manejar el error según sea necesario
-      }
+      }*/
     }
   }
 
