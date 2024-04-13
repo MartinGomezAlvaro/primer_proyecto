@@ -1,32 +1,38 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import appFirebase from "../../database/firebase";
-import { addDoc, collection, getDoc, getFirestore } from "firebase/firestore";
+import { getDocs, collection, query, where, getFirestore, addDoc } from "firebase/firestore";
 import { UserContext } from "../../context/UserContext";
 
-const db = getFirestore(appFirebase)
+const db = getFirestore(appFirebase);
 
 export function RegisterScreen() {
 
-  const{correo, password, edad, nombre, setCorreo, setPassword, setEdad, setNombre} = useContext(UserContext);
-  
+  const { correo, password, edad, nombre, setCorreo, setPassword, setEdad, setNombre } = useContext(UserContext);
   const navigation = useNavigation();
 
   const registerNewUser = async () => {
-    if(nombre === '' || correo === '' || password === '' ||  edad === ''){
-      alert('Por favor, rellene todos los campos')
-    }
-    else {
+    if (nombre === '' || correo === '' || password === '' || edad === '') {
+      alert('Por favor, rellene todos los campos');
+    } else {
       try {
-        await addDoc(collection(db, 'usuarios'),{
-          contrasena: password,
-          correo: correo,
-          edad: edad,
-          nombre: nombre
-        });
-        alert("Guardado exitosamente");
-        navigation.navigate('Main');
+        // Verificar si el correo ya está registrado
+        const correoExistenteQuery = query(collection(db, 'usuarios'), where('correo', '==', correo));
+        const correoExistenteSnapshot = await getDocs(correoExistenteQuery);
+        if (!correoExistenteSnapshot.empty) {
+          alert('Ya existe una cuenta asociada a este correo electrónico en la base de datos.');
+        } else {
+          // Si el correo no existe, agregar el nuevo usuario a la base de datos
+          await addDoc(collection(db, 'usuarios'), {
+            contrasena: password,
+            correo: correo,
+            edad: edad,
+            nombre: nombre
+          });
+          alert("Guardado exitosamente");
+          navigation.navigate('Main');
+        }
       } catch (error) {
         console.error("Error al guardar el usuario:", error);
         // Manejar el error según sea necesario

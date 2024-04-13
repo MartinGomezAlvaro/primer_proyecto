@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, Button, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { UserContext } from './context/UserContext';
+import { useContext } from "react"
 import firebase from './database/firebase';
 import appFirebase from './database/firebase';
-import { addDoc, collection, getDoc, getFirestore } from "firebase/firestore";
+import { addDoc, collection, getDocs, getFirestore, deleteDoc, doc, query, where } from "firebase/firestore";
 
 
 const db = getFirestore(appFirebase)
 
 export default function ParadaCodigo() {
+
+  const {correo} = useContext(UserContext)
+
   const [buses, setBuses] = useState([]);
   const [parada, setParada] = useState('');
   const [favoritos, setFavoritos] = useState({}); // Estado para almacenar favoritos
@@ -42,42 +47,60 @@ export default function ParadaCodigo() {
 
   const handleAgregarFavorito = async (item) => {
     const { id } = item;
-
-  // Verificar si la estrella pasa de estar en blanco a amarillo
-  if (!favoritos[id]) { // Si el estado anterior de la estrella es false (blanco) y el nuevo estado es true (amarillo)
-    // Cambiar el estado local de favoritos
-    setFavoritos(prevState => ({
-      ...prevState,
-      [id]: true // Cambiar el estado de false (blanco) a true (amarillo)
-    }));
-
-    try {
-      // Agregar la tarjeta a la base de datos
-      await addDoc(collection(db, 'tarjetas'), {
-        desino: item.destinationName,
-        estado: true,
-        horaSalida: item.expectedArrival,
-        parada: item.stationName,
-        ruta: item.lineName
-      });
-      alert("Guardado exitosamente");
-    } catch (error) {
-      console.error("Error al guardar la tarjeta:", error);
-      // Manejar el error según sea necesario
-    }
-  } else {
-    // Cambiar el estado local de favoritos
-    setFavoritos(prevState => ({
-      ...prevState,
-      [id]: false // Cambiar el estado de true (amarillo) a false (blanco)
-    }));
-  }
   
+    if (!favoritos[id]) {
+      setFavoritos(prevState => ({
+        ...prevState,
+        [id]: true
+      }));
+  
+      try {
+        await addDoc(collection(db, 'tarjetas'), {
+          desino: item.destinationName,
+          estado: true,
+          horaSalida: item.expectedArrival,
+          parada: item.stationName,
+          ruta: item.lineName,
+          correoUsuario: correo
+        });
+        alert("Guardado exitosamente");
+      } catch (error) {
+        console.error("Error al guardar la tarjeta:", error);
+      }
+    } else {
+      setFavoritos(prevState => ({
+        ...prevState,
+        [id]: false
+      }));
+  
+      try {
+        await deleteFavorite(id); // Llama a la función para eliminar solo esta tarjeta
+      } catch (error) {
+        console.error('Error al eliminar la tarjeta de favoritos:', error);
+      }
+    }
   };
   
-  
-  
-  
+
+  const deleteFavorite = async (itemId) => {
+    try {
+      await deleteDoc(doc(db, 'tarjetas', itemId));
+      console.log('Tarjeta eliminada correctamente');
+    } catch (error) {
+      console.error('Error al eliminar la tarjeta de favoritos:', error);
+      throw error;
+    }
+  };
+
+  const updateFavoriteStatus = async (itemId, newStatus) => {
+    try {
+      await updateDoc(doc(db, 'tarjetas', itemId), { estado: newStatus });
+      console.log('Estado de favorito actualizado correctamente');
+    } catch (error) {
+      console.error('Error al actualizar el estado de favorito en Firestore:', error);
+      throw error;
+    }
+  };
   
   const renderItem = ({ item }) => (
     <View style={styles.pokemonBlock}>

@@ -1,43 +1,110 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, FlatList } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { getFirestore, collection, getDocs, updateDoc, doc, query, where, deleteDoc } from "firebase/firestore";
+import { UserContext } from "../../context/UserContext"
+import { useContext } from "react"
+import { Ionicons } from '@expo/vector-icons';
+import appFirebase from '../../database/firebase';
+
+const db = getFirestore(appFirebase);
 
 export default function Favoritos() {
+
+  const { correo } = useContext(UserContext)
+
   const [favoritos, setFavoritos] = useState([]);
 
-  // Función para obtener los datos del AsyncStorage y actualizar el estado de favoritos
-  const obtenerFavoritosLocalStorage = async () => {
+  useEffect(() => {
+    obtenerFavoritosFirestore();
+  }, []);
+
+  const obtenerFavoritosFirestore = async () => {
     try {
-      const favoritosStorage = await AsyncStorage.getItem('favoritos');
-      if (favoritosStorage) {
-        console.log('Datos de favoritos obtenidos del AsyncStorage:', favoritosStorage);
-        setFavoritos(JSON.parse(favoritosStorage));
-      } else {
-        console.log('No hay datos de favoritos en el AsyncStorage');
-      }
+      const q = query(collection(db, 'tarjetas'), where('correoUsuario', '==', correo));
+      const querySnapshot = await getDocs(q);
+      const favoritosData = [];
+      querySnapshot.forEach((doc) => {
+        const { desino, parada, horaSalida, ruta, estado } = doc.data();
+        favoritosData.push({
+          id: doc.id,
+          desino,
+          parada,
+          horaSalida,
+          ruta,
+          estado,
+        });
+      });
+      setFavoritos(favoritosData);
     } catch (error) {
-      console.error('Error al obtener favoritos del AsyncStorage:', error);
+      console.error('Error al obtener favoritos de Firestore:', error);
     }
   };
-  
 
-  // Función para renderizar cada tarjeta de favorito
+  const handleActualizar = () => {
+    obtenerFavoritosFirestore();
+  };
+
   const renderItem = ({ item }) => (
     <View style={styles.pokemonBlock}>
       <Text style={styles.datosTitle}>Ruta:</Text>
-      <Text>{item.lineName}</Text>
+      <Text>{item.ruta}</Text>
       <Text style={styles.datosTitle}>Hora de salida:</Text>
-      <Text>{new Date(item.expectedArrival).toLocaleTimeString()}</Text>
+      <Text>{item.horaSalida}</Text>
       <Text style={styles.datosTitle}>Parada:</Text>
-      <Text>{item.stationName}</Text>
+      <Text>{item.parada}</Text>
       <Text style={styles.datosTitle}>Destino:</Text>
-      <Text>{item.destinationName}</Text>
+      <Text>{item.desino}</Text>
+      <IconButton
+        iconName={item.estado ? 'star' : 'star-outline'}
+        onPress={() => handleToggleFavorite(item.id, item.estado)}
+      />
     </View>
   );
 
+  const handleToggleFavorite = async (itemId, estadoActual) => {
+    try {
+      if (estadoActual) {
+        // Si el estado actual es verdadero (amarillo), eliminamos la tarjeta
+        await deleteFavorite(itemId);
+      } else {
+        // Si el estado actual es falso (blanco), actualizamos el estado de favorito
+        await updateFavoriteStatus(itemId, !estadoActual);
+      }
+      setFavoritos((prevFavorites) =>
+        prevFavorites.map((item) =>
+          item.id === itemId ? { ...item, estado: !item.estado } : item
+        )
+      );
+    } catch (error) {
+      console.error('Error al actualizar el estado de favorito:', error);
+    }
+  };
+
+  const deleteFavorite = async (itemId) => {
+    try {
+      await deleteDoc(doc(db, 'tarjetas', itemId));
+      console.log('Tarjeta eliminada correctamente');
+    } catch (error) {
+      console.error('Error al eliminar la tarjeta de favoritos:', error);
+      throw error;
+    }
+  };
+
+  const updateFavoriteStatus = async (itemId, newStatus) => {
+    try {
+      await updateDoc(doc(db, 'tarjetas', itemId), { estado: newStatus });
+      console.log('Estado de favorito actualizado correctamente');
+    } catch (error) {
+      console.error('Error al actualizar el estado de favorito en Firestore:', error);
+      throw error;
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Favoritos</Text>
+      <TouchableOpacity style={styles.actualizarButton} onPress={handleActualizar}>
+        <Ionicons name="refresh" size={24} color="black" />
+      </TouchableOpacity>
       <FlatList
         data={favoritos}
         renderItem={renderItem}
@@ -47,18 +114,15 @@ export default function Favoritos() {
   );
 }
 
+const IconButton = ({ iconName, onPress }) => (
+  <Ionicons name={iconName} size={24} color={iconName === 'star' ? 'yellow' : 'black'} onPress={onPress} />
+);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
     padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: 'black',
-    textAlign: 'center',
   },
   datosTitle: {
     fontWeight: 'bold',
@@ -77,5 +141,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 4,
     elevation: 5,
+  },
+  actualizarButton: {
+    alignItems: 'center',
+    marginBottom: 10,
   },
 });

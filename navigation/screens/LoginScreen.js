@@ -6,34 +6,37 @@ import { MainContainer } from '../MainContainers';
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from "../../context/UserContext";
 import { useContext } from "react";
+import { getFirestore, collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { Ionicons } from '@expo/vector-icons';
+import appFirebase from '../../database/firebase';
+
+const db = getFirestore(appFirebase);
 
 const Stack = createStackNavigator();
 
 export function LoginScreen() {
 
   const navigation = useNavigation();
-  const{correo, password, edad, nombre, setCorreo, setPassword, setEdad, setNombre} = useContext(UserContext);
-  
-  const loginNewUser = async () => {
-    if(correo === '' || password === ''){
-      alert('Por favor, rellene todos los campos')
-    }
-    else {
-      try {
-        /*await addDoc(collection(db, 'usuarios'),{
-          contrasena: password,
-          correo: correo,
-          edad: edad,
-          nombre: nombre
-        });
-        alert("Guardado exitosamente");*/
+  const { correo, password, setCorreo, setPassword, setEdad, setNombre } = useContext(UserContext);
+
+  const checkUserCredentials = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'usuarios'));
+      const users = querySnapshot.docs.map(doc => doc.data());
+      const foundUser = users.find(user => user.correo === correo && user.contrasena === password);
+      if (foundUser) {
+        const { edad, nombre } = foundUser;
+        setEdad(edad); // Actualizar la edad en el contexto
+        setNombre(nombre); // Actualizar el nombre en el contexto
         navigation.navigate('Main');
-      } catch (error) {
-        console.error("Error al guardar el usuario:", error);
-        // Manejar el error según sea necesario
+      } else {
+        alert('No existe un usuario con esos datos');
       }
+    } catch (error) {
+      console.error("Error al obtener usuarios:", error);
+      // Manejar el error según sea necesario
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -51,7 +54,7 @@ export function LoginScreen() {
         value={password}
         secureTextEntry={true}
       />
-      <Button  name='Main' title='Acceder' onPress={() => loginNewUser()}/>
+      <Button name='Main' title='Acceder' onPress={checkUserCredentials} />
     </View>
   );
 }
