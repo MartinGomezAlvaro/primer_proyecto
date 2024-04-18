@@ -10,6 +10,7 @@ import { getFirestore, collection, getDocs, updateDoc, doc } from "firebase/fire
 import { Ionicons } from '@expo/vector-icons';
 import appFirebase from '../../database/firebase';
 
+
 const db = getFirestore(appFirebase);
 
 const Stack = createStackNavigator();
@@ -54,7 +55,7 @@ export function LoginScreen() {
         value={password}
         secureTextEntry={true}
       />
-      <Button name='Main' title='Acceder' onPress={checkUserCredentials} />
+      <Button color= "rgb(0,0,0)" name='Main' title='Acceder' onPress={checkUserCredentials} />
     </View>
   );
 }

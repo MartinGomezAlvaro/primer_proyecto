@@ -8,6 +8,13 @@ export function UserProvider ({children}){
     const [nombre, setNombre] = useState()
     const [edad, setEdad] = useState()
 
+    const clearData = () => {
+        setCorreo(''),
+        setPassword(''),
+        setNombre(''),
+        setEdad('')
+    }
+
     return(
         <UserContext.Provider value={{
             correo,
@@ -17,7 +24,8 @@ export function UserProvider ({children}){
             setCorreo,
             setPassword,
             setNombre,
-            setEdad
+            setEdad,
+            clearData
         }}
         >
             {children}

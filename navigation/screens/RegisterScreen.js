@@ -70,7 +70,7 @@ export function RegisterScreen() {
         value={password}
         secureTextEntry={true}
       />
-      <Button name='Main' title='Acceder' onPress={() => registerNewUser()} />
+      <Button color= "rgb(0,0,0)" name='Main' title='Acceder' onPress={() => registerNewUser()} />
     </View>
   );
 }

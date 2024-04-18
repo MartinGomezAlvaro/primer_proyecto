@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, Button, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const BusRouteScreen = () => {
   const [origin, setOrigin] = useState('');
@@ -47,7 +48,7 @@ const BusRouteScreen = () => {
   };
 
   const renderItem = (route, index) => (
-    <TouchableOpacity key={index} style={styles.routeCard}>
+    <View key={index} style={styles.routeCard}>
       <View>
         <Text style={styles.routeTitle}>Salida:</Text>
         <Text>{route.startDateTime}</Text>
@@ -64,72 +65,81 @@ const BusRouteScreen = () => {
       {route.legs.map((leg, index) => (
         <Text key={index} style={styles.routeStep}>{leg.instruction.summary}</Text>
       ))}
-    </TouchableOpacity>
+    </View>
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Buscar Rutas de Autobús</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={origin}
-          onChangeText={text => setOrigin(text)}
-          placeholder="Origen"
-        />
-        <TextInput
-          style={styles.input}
-          value={destination}
-          onChangeText={text => setDestination(text)}
-          placeholder="Destino"
-        />
-        <View style={styles.buttonContainer}>
-          <Button 
-            title="Buscar Ruta" 
-            onPress={fetchBusRoutes} 
-          />
-          <Button 
-            title="Obtener Coordenadas" 
-            onPress={() => setModalVisible(true)} 
-          />
-        </View>
-      </View>
-      {busRoutes.map((route, index) => renderItem(route, index))}
-
-      {/* Ventana emergente para obtener coordenadas */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
+    <LinearGradient colors={["#ffffff", "#006400"]} style={styles.container}>
+        <ScrollView>
+          <Text style={styles.title}>Buscar Rutas de Autobús</Text>
+          <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              value={placeName}
-              onChangeText={text => setPlaceName(text)}
-              placeholder="Nombre del lugar"
-            />
-            <Button 
-              title="Obtener" 
-              onPress={fetchCoordinates} 
-              style={{ marginTop: 20, marginBottom: 20 }} // Ajusta el valor de marginTop según sea necesario
+              value={origin}
+              onChangeText={text => setOrigin(text)}
+              placeholder="Origen"
             />
             <TextInput
-              style={[styles.input, { marginTop: 20 }]}
-              value={coordinates}
-              placeholder="Coordenadas"
-              editable={true}
+              style={styles.input}
+              value={destination}
+              onChangeText={text => setDestination(text)}
+              placeholder="Destino"
             />
-            <Button 
-              title="Cerrar" 
-              onPress={() => setModalVisible(false)} 
-            />
+            <View style={styles.buttonContainer}>
+              <Button 
+                color= "rgb(0,0,0)"
+                title="Buscar Ruta" 
+                onPress={fetchBusRoutes} 
+              />
+              <Button 
+                color= "rgb(0,0,0)"
+                title="Obtener Coordenadas" 
+                onPress={() => setModalVisible(true)} 
+              />
+            </View>
           </View>
-        </View>
-      </Modal>
-    </ScrollView>
+          {busRoutes.map((route, index) => renderItem(route, index))}
+
+          {/* Ventana emergente para obtener coordenadas */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <TextInput
+                  style={styles.inputModal}
+                  value={placeName}
+                  onChangeText={text => setPlaceName(text)}
+                  placeholderTextColor="#ffffff" // Color del texto del placeholder
+                  placeholder="Nombre del lugar"
+                />
+                <Button 
+                  color= "#006400"
+                  title="Obtener" 
+                  onPress={fetchCoordinates} 
+                  style={{ marginTop: 20, marginBottom: 20 }} // Ajusta el valor de marginTop según sea necesario
+                />
+                <TextInput
+                  style={[styles.inputModal, { marginTop: 20 }]}
+                  value={coordinates}
+                  placeholderTextColor="#ffffff" // Color del texto del placeholder
+                  placeholder="Coordenadas"
+                  editable={true}
+                />
+                <Button 
+                  color= "#006400"
+                  title="Cerrar" 
+                  onPress={() => setModalVisible(false)} 
+                />
+              </View>
+            </View>
+          </Modal>
+        </ScrollView>
+    </LinearGradient>
+    
   );
 };
 
@@ -140,6 +150,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
+    textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
@@ -153,7 +164,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
-    width: '100%'
+    width: '100%',
+  },
+  inputModal: {
+    height: 40,
+    borderColor: '#fff',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    width: '100%',
+    color: '#ffffff', // Texto blanco
   },
   routeCard: {
     backgroundColor: '#f9f9f9',
@@ -178,11 +198,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalView: {
     margin: 20,
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)', // Fondo blanco
     borderRadius: 20,
     padding: 35,
     paddingBottom: 50, // Ajusta este valor para aumentar el espacio
@@ -195,7 +215,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: '80%'
+    width: '80%',
   },
 });
 

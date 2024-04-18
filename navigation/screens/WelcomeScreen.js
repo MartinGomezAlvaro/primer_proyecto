@@ -15,8 +15,8 @@ function WelcomeScreen  ()  {
         <View style={styles.container}>
             <Text style={styles.title}>¡Bienvenido!</Text>
             <View style={styles.buttonContainer}>
-                <Button  name='Login' title='Iniciar Sesion' onPress={() => navigation.navigate('Login')}/>
-                <Button  name='Register' title='Registrarse' onPress={() => navigation.navigate('Register')}/>
+                <Button color= "rgb(0,0,0)"  name='Login' title='Iniciar Sesion' onPress={() => navigation.navigate('Login')}/>
+                <Button color= "rgb(0,0,0)"  name='Register' title='Registrarse' onPress={() => navigation.navigate('Register')}/>
             </View>
         </View>
     );

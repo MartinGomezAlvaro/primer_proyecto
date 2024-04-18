@@ -5,6 +5,7 @@ import { UserContext } from "../../context/UserContext"
 import { useContext } from "react"
 import { Ionicons } from '@expo/vector-icons';
 import appFirebase from '../../database/firebase';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const db = getFirestore(appFirebase);
 
@@ -101,7 +102,7 @@ export default function Favoritos() {
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient style={styles.container} colors={["#ffffff", "#006400"]}>
       <TouchableOpacity style={styles.actualizarButton} onPress={handleActualizar}>
         <Ionicons name="refresh" size={24} color="black" />
       </TouchableOpacity>
@@ -110,7 +111,7 @@ export default function Favoritos() {
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
-    </View>
+    </LinearGradient>
   );
 }
 

@@ -11,7 +11,6 @@ import HomeScreen from './screens/HomeScreen';
 import DetailsScreen from './screens/DetailsScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import RutasScreen from './screens/RutasScreen';
-import DrawerExample from '../Drawer';
 import Timer from './screens/Timer';
 import Favoritos from './screens/FavoritosScreen';
 import { CuentaScreen } from './screens/CuentaScreen';
@@ -20,7 +19,7 @@ import { CuentaScreen } from './screens/CuentaScreen';
 //Screen names
 const homeName = "Home";
 const detailsName = "Paradas";
-const settingsName = "LLegadas";
+const settingsName = "Llegadas";
 const rutasName = "Rutas";
 const timerName = "Timer"
 const favoritosName = "Favoritos"
@@ -40,7 +39,6 @@ const ProfileScreenWithDrawer = () => {
       return (
         <>
           <DrawerContentScrollView {...props}>
-          <Text>Hello</Text>
           <DrawerItem label={'Home'} onPress={() => {
             props.navigation.navigate(homeName)
           }}
@@ -93,7 +91,7 @@ const ProfileScreenWithDrawer = () => {
         
       );
     }}>
-      <Drawer.Screen name={homeName} component={DrawerExample} />
+      <Drawer.Screen name={homeName} component={HomeScreen} />
       <Drawer.Screen name={timerName} component={Timer} />
       <Drawer.Screen name={favoritosName} component={Favoritos} />
       <Drawer.Screen name={CuentaName} component={CuentaScreen} />
@@ -126,7 +124,7 @@ function MainContainer() {
           },
         })}
         tabBarOptions={{
-          activeTintColor: 'blue',
+          activeTintColor: '#006400',
           inactiveTintColor: 'black',
           labelStyle: { paddingBottom: 10, fontSize: 10 },
           style: { padding: 10, height: 70}

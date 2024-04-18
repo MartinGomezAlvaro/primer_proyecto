@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, Button, FlatList, TouchableOpacity, Modal } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ParadaNombreScreen() {
   const [parada, setParada] = useState('');
@@ -39,7 +40,7 @@ export default function ParadaNombreScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient style={styles.container} colors={["#ffffff", "#006400"]}>
       <Text style={styles.title}>Buscar Parada por Nombre</Text>
       <View style={styles.inputContainer}>
         <TextInput
@@ -48,7 +49,7 @@ export default function ParadaNombreScreen() {
           onChangeText={text => setParada(text)}
           placeholder="Ingrese el nombre de la parada"
         />
-        <Button title="Buscar" onPress={handleBuscar} />
+        <Button  color= "rgb(0,0,0)" title="Buscar" onPress={handleBuscar} />
       </View>
       <FlatList
         data={buses}
@@ -64,29 +65,32 @@ export default function ParadaNombreScreen() {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Detalles de la parada</Text>
+            <Text style={styles.modalText}>DETALLES DE LA PARADA</Text>
             {selectedParada && (
               <>
-                <Text>Nombre: {selectedParada.name}</Text>
-                <Text>Tipo de transporte: {selectedParada.modes.join(', ')}</Text>
-                <Text>Zona: {selectedParada.zone}</Text>
-                <Text>Latitud: {selectedParada.lat}</Text>
-                <Text>Longitud: {selectedParada.lon}</Text>
+                <Text style={styles.infoModalTitle}>Nombre:</Text>
+                <Text style={styles.infoModal}>{selectedParada.name}</Text>
+                <Text style={styles.infoModalTitle}>Tipo de transporte:</Text>
+                <Text style={styles.infoModal}>{selectedParada.modes.join(', ')}</Text>
+                <Text style={styles.infoModalTitle}>Latitud:</Text>
+                <Text style={styles.infoModal}>{selectedParada.lat}</Text>
+                <Text style={styles.infoModalTitle}>Longitud:</Text>
+                <Text style={styles.infoModal}>{selectedParada.lon}</Text>
               </>
             )}
-            <Button title="Cerrar" onPress={() => setModalVisible(false)} />
+            <Button color= "#006400" title="Cerrar" onPress={() => setModalVisible(false)} />
           </View>
         </View>
       </Modal>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
@@ -97,6 +101,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     marginBottom: 20,
+    paddingLeft: 15,
+    paddingRight: 15,
   },
   input: {
     flex: 1,
@@ -125,10 +131,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalView: {
     margin: 20,
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
@@ -142,8 +149,21 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalText: {
+    color: 'white',
     marginBottom: 15,
     textAlign: 'center',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  infoModalTitle: {
+    color: 'white',
+    textDecorationLine: 'underline',
+    marginBottom: 5,
+    textTransform: 'uppercase',
+  },
+  infoModal: {
+    color: 'white',
+    marginBottom: 15,
     fontWeight: 'bold',
   },
 });

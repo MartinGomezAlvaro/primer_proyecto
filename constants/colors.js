@@ -4,7 +4,7 @@ const Colors = {
     BLACK: '#000',
     PLACEHOLDER_COLOR: '#8B8B8B',
     GRAY_LIGHT: 'lightgray',
-    ORANGE: 'orange',
+    ORANGE: '#006400',
   };
   
   export default Colors;

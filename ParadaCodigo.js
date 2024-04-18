@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, Button, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Button, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { UserContext } from './context/UserContext';
 import { useContext } from "react"
 import firebase from './database/firebase';
 import appFirebase from './database/firebase';
 import { addDoc, collection, getDocs, getFirestore, deleteDoc, doc, query, where } from "firebase/firestore";
+import { LinearGradient } from 'expo-linear-gradient';
 
 
 const db = getFirestore(appFirebase)
 
 export default function ParadaCodigo() {
 
+  const [modalVisibleSuccess, setModalVisibleSuccess] = useState(false);
   const {correo} = useContext(UserContext)
 
   const [buses, setBuses] = useState([]);
@@ -63,45 +65,21 @@ export default function ParadaCodigo() {
           ruta: item.lineName,
           correoUsuario: correo
         });
-        alert("Guardado exitosamente");
+        // Mostrar el modal de éxito
+        setModalVisibleSuccess(true);
+        setTimeout(() => {
+          setFavoritos(prevState => ({
+            ...prevState,
+            [id]: false
+          }));
+        }, 2500); // Después de 2.5 segundos, establece el estado de la estrella de nuevo a false
       } catch (error) {
         console.error("Error al guardar la tarjeta:", error);
       }
-    } else {
-      setFavoritos(prevState => ({
-        ...prevState,
-        [id]: false
-      }));
-  
-      try {
-        await deleteFavorite(id); // Llama a la función para eliminar solo esta tarjeta
-      } catch (error) {
-        console.error('Error al eliminar la tarjeta de favoritos:', error);
-      }
     }
   };
   
 
-  const deleteFavorite = async (itemId) => {
-    try {
-      await deleteDoc(doc(db, 'tarjetas', itemId));
-      console.log('Tarjeta eliminada correctamente');
-    } catch (error) {
-      console.error('Error al eliminar la tarjeta de favoritos:', error);
-      throw error;
-    }
-  };
-
-  const updateFavoriteStatus = async (itemId, newStatus) => {
-    try {
-      await updateDoc(doc(db, 'tarjetas', itemId), { estado: newStatus });
-      console.log('Estado de favorito actualizado correctamente');
-    } catch (error) {
-      console.error('Error al actualizar el estado de favorito en Firestore:', error);
-      throw error;
-    }
-  };
-  
   const renderItem = ({ item }) => (
     <View style={styles.pokemonBlock}>
       <Text style={styles.datosTitle}>Ruta:</Text>
@@ -125,37 +103,52 @@ export default function ParadaCodigo() {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Paradas de Autobús</Text>
+    <LinearGradient style={styles.container} colors={["#ffffff", "#006400"]}>
+      <Text style={styles.title}>Buscar Próximos Autobuses</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           value={parada}
           onChangeText={text => setParada(text)}
-          placeholder="Ingrese el código de la parada"
+          placeholder="Ingrese el identificador de la parada"
         />
-        <Button title="Buscar" onPress={handleBuscar} />
+        <Button  color= "rgb(0,0,0)" title="Buscar" onPress={handleBuscar} />
       </View>
       <FlatList
         data={buses}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
       />
-    </View>
+
+      {/* Modal para mostrar el mensaje de éxito */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisibleSuccess}
+        onRequestClose={() => setModalVisibleSuccess(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Guardado correctamente</Text>
+            <Button color= "#006400" title="OK" onPress={() => setModalVisibleSuccess(false)} />
+          </View>
+        </View>
+      </Modal>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#85B4F4',
-    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
   },
   datosTitle: {
@@ -165,13 +158,15 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     marginBottom: 20,
+    paddingLeft: 15,
+    paddingRight: 15,
   },
   input: {
     flex: 1,
     height: 40,
-    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 5,
-    marginRight: 10,
     paddingHorizontal: 10,
   },
   pokemonBlock: {
@@ -187,5 +182,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 4,
     elevation: 5,
+  },
+  // Estilos para el modal
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+  },
+  modalText: {
+    color: 'white',
+    marginBottom: 15,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
 });
