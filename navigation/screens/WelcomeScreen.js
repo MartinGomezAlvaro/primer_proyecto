@@ -1,25 +1,26 @@
 // WelcomeScreen.js
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { LoginScreen } from './LoginScreen';
-import { RegisterScreen } from './RegisterScreen';
+import { View, Button, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-
-function WelcomeScreen  ()  {
-
+function WelcomeScreen() {
+  const image = require('../../images/busDeFrente.jpg');
   const navigation = useNavigation();
+  
   return (
-        <View style={styles.container}>
-            <Text style={styles.title}>¡Bienvenido!</Text>
-            <View style={styles.buttonContainer}>
-                <Button color= "rgb(0,0,0)"  name='Login' title='Iniciar Sesion' onPress={() => navigation.navigate('Login')}/>
-                <Button color= "rgb(0,0,0)"  name='Register' title='Registrarse' onPress={() => navigation.navigate('Register')}/>
-            </View>
+    <View style={styles.container}>
+      <ImageBackground source={image} resizeMode="cover" style={styles.image}>
+        <View style={styles.buttonContainer}>
+          <View style={styles.button}>
+            <Button color="rgb(0,0,0)" title='Iniciar Sesión' onPress={() => navigation.navigate('Login')} />
+          </View>
+          <View style={styles.button}>
+            <Button color="rgb(0,0,0)" title='Registrarse' onPress={() => navigation.navigate('Registro')} />
+          </View>
         </View>
-    );
+      </ImageBackground>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -28,14 +29,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
+  image: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   buttonContainer: {
-    width: '80%',
+    position: 'absolute',
+    bottom: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    width: '100%',
+  },
+  button: {
+    width: '45%', // Ajusta el ancho de los botones según sea necesario
   },
 });
 

@@ -14,12 +14,12 @@ const SplashScreen = ({ navigation }) => {
     }).start(() => {
       Animated.timing(opacity, {
         toValue: 1,
-        duration: 3000, // Reducimos la duración de la animación de opacidad del texto "Hola"
+        duration: 3000,
         useNativeDriver: true,
       }).start(() => {
         setTimeout(() => {
           navigation.replace('Welcome');
-        }, 2000); // Ajustamos el tiempo antes de navegar a HomeScreen
+        }, 2000);
       });
     });
   }, []);
@@ -27,7 +27,7 @@ const SplashScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Animated.Image
-        source={require('../../images/bus.jpg')} // Cambia esto por la ruta de la imagen de tu autobús
+        source={require('../../images/bus.jpg')}
         style={[
           styles.bus,
           {
@@ -39,18 +39,15 @@ const SplashScreen = ({ navigation }) => {
           },
         ]}
       />
-      <Animated.Text
+      <Animated.Image
+        source={require('../../images/BussAPI.jpg')}
         style={[
-          styles.text,
+          styles.bussAPI,
           {
             opacity: opacity,
-            fontSize: 32, // Ajustamos el tamaño del texto
-            textAlign: 'center', // Centramos el texto
           },
         ]}
-      >
-        Hola
-      </Animated.Text>
+      />
     </View>
   );
 };
@@ -66,10 +63,15 @@ const styles = StyleSheet.create({
     width: 200,
     height: 100,
     resizeMode: 'contain',
+    position: 'absolute', // Posiciona la imagen absolutamente
+    top: '50%', // La posiciona en la mitad vertical del contenedor
+    marginTop: -50, // Ajusta la posición para centrarla completamente
   },
-  text: {
-    fontWeight: 'bold',
-    marginTop: 20,
+  bussAPI: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
+    marginTop: -40, // Mueve la imagen hacia arriba
   },
 });
 

@@ -9,7 +9,7 @@ import { useContext } from "react";
 import { getFirestore, collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { Ionicons } from '@expo/vector-icons';
 import appFirebase from '../../database/firebase';
-
+import { LinearGradient } from 'expo-linear-gradient';
 
 const db = getFirestore(appFirebase);
 
@@ -40,8 +40,8 @@ export function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <LinearGradient style={styles.container} colors={["#ffffff", "#006400"]}>
+      <Text style={styles.title}>Inicio de Sesión</Text>
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
@@ -56,7 +56,7 @@ export function LoginScreen() {
         secureTextEntry={true}
       />
       <Button color= "rgb(0,0,0)" name='Main' title='Acceder' onPress={checkUserCredentials} />
-    </View>
+    </LinearGradient>
   );
 }
 

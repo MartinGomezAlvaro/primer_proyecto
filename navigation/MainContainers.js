@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { DrawerContentScrollView, DrawerItem, createDrawerNavigator } from '@react-navigation/drawer';
-import { StyleSheet, View, Text, TextInput, Button, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Button, ScrollView, TouchableOpacity, Modal, SafeAreaView, Image } from 'react-native';
 import Colors from '../constants/colors';
 
 // Screens
@@ -38,6 +38,21 @@ const ProfileScreenWithDrawer = () => {
 
       return (
         <>
+        <SafeAreaView>
+            <View
+              style={{
+                height: 300,
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: Colors.ORANGE,
+              }}
+            >
+              <Image
+                source={require('../images/BussAPI.jpg')}
+              />
+            </View>
+          </SafeAreaView>
           <DrawerContentScrollView {...props}>
           <DrawerItem label={'Home'} onPress={() => {
             props.navigation.navigate(homeName)

@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import appFirebase from "../../database/firebase";
 import { getDocs, collection, query, where, getFirestore, addDoc } from "firebase/firestore";
 import { UserContext } from "../../context/UserContext";
+import { LinearGradient } from 'expo-linear-gradient';
 
 const db = getFirestore(appFirebase);
 
@@ -41,8 +42,8 @@ export function RegisterScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registro</Text>
+    <LinearGradient style={styles.container} colors={["#ffffff", "#006400"]}>
+      <Text style={styles.title}>Registrarse</Text>
       <TextInput
         style={styles.input}
         placeholder="Nombre"
@@ -71,7 +72,7 @@ export function RegisterScreen() {
         secureTextEntry={true}
       />
       <Button color= "rgb(0,0,0)" name='Main' title='Acceder' onPress={() => registerNewUser()} />
-    </View>
+    </LinearGradient>
   );
 }
 
