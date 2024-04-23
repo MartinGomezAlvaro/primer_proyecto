@@ -34,29 +34,33 @@ export function CuentaScreen() {
     // Función para manejar la actualización de datos
     const actualizarDatos = async () => {
         try {
-            // Consulta para encontrar el documento con el correo electrónico dado
-            const querySnapshot = await getDocs(collection(db, 'usuarios'));
-            querySnapshot.forEach(async (doc) => {
-                if (doc.data().correo === correo) { // Verifica si el correo coincide
-                    await updateDoc(doc.ref, {  // Actualiza el documento encontrado
-                        contrasena: user.contrasena,
-                        edad: user.edad.toString(),
-                        nombre: user.nombre,
-                    });
-                }
-            });
-            setUser({
-              ...user,
-              contrasena: user.contrasena,
-              edad: user.edad.toString(),
-              nombre: user.nombre,
-          });
-            setIsDirty(false);
-            Alert.alert("Éxito", "Datos actualizados correctamente");
-        } catch (error) {
+            if(user.contrasena === '' || user.nombre === '' || user.edad === ''){
+              Alert.alert("No se permite actualizar campos vacíos");
+            }else{
+              // Consulta para encontrar el documento con el correo electrónico dado
+              const querySnapshot = await getDocs(collection(db, 'usuarios'));
+              querySnapshot.forEach(async (doc) => {
+                  if (doc.data().correo === correo) { // Verifica si el correo coincide
+                      await updateDoc(doc.ref, {  // Actualiza el documento encontrado
+                          contrasena: user.contrasena,
+                          edad: user.edad.toString(),
+                          nombre: user.nombre,
+                      });
+                  }
+              });
+              setUser({
+                ...user,
+                contrasena: user.contrasena,
+                edad: user.edad.toString(),
+                nombre: user.nombre,
+              });
+              setIsDirty(false);
+              Alert.alert("Éxito", "Datos actualizados correctamente");
+            }
+          } catch (error) {
             console.error("Error al actualizar los datos:", error);
             Alert.alert("Error", "Hubo un error al actualizar los datos. Por favor, inténtalo de nuevo más tarde");
-        }
+          }
     }
 
     const salir = () => {

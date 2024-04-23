@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Modal } from "react-native";
+import { useState } from "react";
 import { useNavigation } from '@react-navigation/native';
 import appFirebase from "../../database/firebase";
 import { getDocs, collection, query, where, getFirestore, addDoc } from "firebase/firestore";
@@ -11,34 +12,35 @@ const db = getFirestore(appFirebase);
 export function RegisterScreen() {
 
   const { correo, password, edad, nombre, setCorreo, setPassword, setEdad, setNombre } = useContext(UserContext);
+  const [modalVisibleSuccess, setModalVisibleSuccess] = useState(false);
   const navigation = useNavigation();
 
   const registerNewUser = async () => {
-    if (nombre === '' || correo === '' || password === '' || edad === '') {
-      alert('Por favor, rellene todos los campos');
-    } else {
       try {
-        // Verificar si el correo ya está registrado
-        const correoExistenteQuery = query(collection(db, 'usuarios'), where('correo', '==', correo));
-        const correoExistenteSnapshot = await getDocs(correoExistenteQuery);
-        if (!correoExistenteSnapshot.empty) {
-          alert('Ya existe una cuenta asociada a este correo electrónico en la base de datos.');
+        if (!nombre || !correo || !password || !edad) {
+          setModalVisibleSuccess(true);
         } else {
-          // Si el correo no existe, agregar el nuevo usuario a la base de datos
-          await addDoc(collection(db, 'usuarios'), {
-            contrasena: password,
-            correo: correo,
-            edad: edad,
-            nombre: nombre
-          });
-          alert("Guardado exitosamente");
-          navigation.navigate('Main');
+          // Verificar si el correo ya está registrado
+          const correoExistenteQuery = query(collection(db, 'usuarios'), where('correo', '==', correo));
+          const correoExistenteSnapshot = await getDocs(correoExistenteQuery);
+          if (!correoExistenteSnapshot.empty) {
+            alert('Ya existe una cuenta asociada a este correo electrónico en la base de datos.');
+          } else {
+            // Si el correo no existe, agregar el nuevo usuario a la base de datos
+            await addDoc(collection(db, 'usuarios'), {
+              contrasena: password,
+              correo: correo,
+              edad: edad,
+              nombre: nombre
+            });
+            alert("Guardado exitosamente");
+            navigation.navigate('Main');
+          }
         }
       } catch (error) {
         console.error("Error al guardar el usuario:", error);
         // Manejar el error según sea necesario
       }
-    }
   }
 
   return (
@@ -72,9 +74,23 @@ export function RegisterScreen() {
         secureTextEntry={true}
       />
       <Button color= "rgb(0,0,0)" name='Main' title='Acceder' onPress={() => registerNewUser()} />
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisibleSuccess}
+        onRequestClose={() => setModalVisibleSuccess(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Por favor, rellene todos los campos</Text>
+            <Button color= "#006400" title="OK" onPress={() => setModalVisibleSuccess(false)} />
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -93,5 +109,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+  },
+  modalText: {
+    color: 'white',
+    marginBottom: 15,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
 });

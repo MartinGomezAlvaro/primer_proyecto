@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Modal } from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MainContainer } from '../MainContainers';
@@ -19,6 +19,7 @@ export function LoginScreen() {
 
   const navigation = useNavigation();
   const { correo, password, setCorreo, setPassword, setEdad, setNombre } = useContext(UserContext);
+  const [modalVisibleSuccess, setModalVisibleSuccess] = useState(false);
 
   const checkUserCredentials = async () => {
     try {
@@ -31,7 +32,7 @@ export function LoginScreen() {
         setNombre(nombre); // Actualizar el nombre en el contexto
         navigation.navigate('Main');
       } else {
-        alert('No existe un usuario con esos datos');
+        setModalVisibleSuccess(true);
       }
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
@@ -56,6 +57,19 @@ export function LoginScreen() {
         secureTextEntry={true}
       />
       <Button color= "rgb(0,0,0)" name='Main' title='Acceder' onPress={checkUserCredentials} />
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisibleSuccess}
+        onRequestClose={() => setModalVisibleSuccess(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>No existe un usuario con esos datos</Text>
+            <Button color= "#006400" title="OK" onPress={() => setModalVisibleSuccess(false)} />
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -77,5 +91,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+  },
+  modalText: {
+    color: 'white',
+    marginBottom: 15,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
 });

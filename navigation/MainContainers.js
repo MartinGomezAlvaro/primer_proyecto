@@ -11,7 +11,6 @@ import HomeScreen from './screens/HomeScreen';
 import DetailsScreen from './screens/DetailsScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import RutasScreen from './screens/RutasScreen';
-import Timer from './screens/Timer';
 import Favoritos from './screens/FavoritosScreen';
 import { CuentaScreen } from './screens/CuentaScreen';
 
@@ -21,7 +20,6 @@ const homeName = "Home";
 const detailsName = "Paradas";
 const settingsName = "Llegadas";
 const rutasName = "Rutas";
-const timerName = "Timer"
 const favoritosName = "Favoritos"
 const CuentaName = "Cuenta"
 
@@ -66,15 +64,6 @@ const ProfileScreenWithDrawer = () => {
                   <Ionicons name="home-outline" color={color} size={size} />
                 )}
           />
-          <DrawerItem label={'Timer'} onPress={() => {
-            props.navigation.navigate(timerName)
-          }}
-          focused={focused === timerName}
-                  activeBackgroundColor={Colors.ORANGE}
-                  inactiveBackgroundColor={Colors.GRAY_LIGHT}
-                  inactiveTintColor={Colors.BLACK}
-                  activeTintColor={Colors.WHITE}
-          />
           <DrawerItem label={'Favoritos'} onPress={() => {
             props.navigation.navigate(favoritosName)
           }}
@@ -107,7 +96,6 @@ const ProfileScreenWithDrawer = () => {
       );
     }}>
       <Drawer.Screen name={homeName} component={HomeScreen} />
-      <Drawer.Screen name={timerName} component={Timer} />
       <Drawer.Screen name={favoritosName} component={Favoritos} />
       <Drawer.Screen name={CuentaName} component={CuentaScreen} />
     </Drawer.Navigator>
