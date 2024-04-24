@@ -63,8 +63,8 @@ const BusRouteScreen = () => {
       </View>
       <Text style={styles.routeTitle}>Instrucciones / Guía :</Text>
       {route.legs.map((leg, index) => (
-        <Text key={index} style={styles.routeStep}>{leg.instruction.summary}</Text>
-      ))}
+        <Text key={index} style={styles.routeStep}>- {leg.instruction.summary}</Text>
+      ))} 
     </View>
   );
 

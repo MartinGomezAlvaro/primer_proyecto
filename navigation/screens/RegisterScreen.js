@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Modal } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Modal, ToastAndroid } from "react-native";
 import { useState } from "react";
 import { useNavigation } from '@react-navigation/native';
 import appFirebase from "../../database/firebase";
@@ -24,7 +24,13 @@ export function RegisterScreen() {
           const correoExistenteQuery = query(collection(db, 'usuarios'), where('correo', '==', correo));
           const correoExistenteSnapshot = await getDocs(correoExistenteQuery);
           if (!correoExistenteSnapshot.empty) {
-            alert('Ya existe una cuenta asociada a este correo electrónico en la base de datos.');
+            ToastAndroid.showWithGravityAndOffset(
+              'Ya existe una cuenta asociada a este correo .',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50,
+            );
           } else {
             // Si el correo no existe, agregar el nuevo usuario a la base de datos
             await addDoc(collection(db, 'usuarios'), {
@@ -35,6 +41,13 @@ export function RegisterScreen() {
             });
             alert("Guardado exitosamente");
             navigation.navigate('Main');
+            ToastAndroid.showWithGravityAndOffset(
+              'Usuario creado correctamente',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50,
+            );
           }
         }
       } catch (error) {

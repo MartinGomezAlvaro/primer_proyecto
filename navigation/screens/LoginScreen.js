@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Modal } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Modal, ActivityIndicator, ToastAndroid } from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MainContainer } from '../MainContainers';
@@ -18,11 +18,13 @@ const Stack = createStackNavigator();
 export function LoginScreen() {
 
   const navigation = useNavigation();
+  const [isPressed, setIsPressed] = useState(false)
   const { correo, password, setCorreo, setPassword, setEdad, setNombre } = useContext(UserContext);
   const [modalVisibleSuccess, setModalVisibleSuccess] = useState(false);
 
   const checkUserCredentials = async () => {
     try {
+      setIsPressed(true)
       const querySnapshot = await getDocs(collection(db, 'usuarios'));
       const users = querySnapshot.docs.map(doc => doc.data());
       const foundUser = users.find(user => user.correo === correo && user.contrasena === password);
@@ -31,8 +33,16 @@ export function LoginScreen() {
         setEdad(edad); // Actualizar la edad en el contexto
         setNombre(nombre); // Actualizar el nombre en el contexto
         navigation.navigate('Main');
+        ToastAndroid.showWithGravityAndOffset(
+          '¡ Bienvenido de nuevo !',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
       } else {
         setModalVisibleSuccess(true);
+        setIsPressed(false)
       }
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
@@ -57,6 +67,13 @@ export function LoginScreen() {
         secureTextEntry={true}
       />
       <Button color= "rgb(0,0,0)" name='Main' title='Acceder' onPress={checkUserCredentials} />
+      {isPressed && (
+        <>
+          <Text style={styles.verificando}>Verificando</Text>
+          <ActivityIndicator size="large" color="#00ff00"/>
+        </>
+        
+      )}
       <Modal
         animationType="slide"
         transparent={true}
@@ -112,5 +129,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     textTransform: 'uppercase',
+  },
+  verificando: {
+    marginTop: 20,
   },
 });

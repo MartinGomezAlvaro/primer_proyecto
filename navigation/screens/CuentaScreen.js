@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationContainer } from '@react-navigation/native';
-import { View, Text, StyleSheet, TextInput, Button } from "react-native";
+import { View, Text, StyleSheet, TextInput, Button, ToastAndroid } from "react-native";
 import { UserContext } from "../../context/UserContext";
 import { useContext } from "react";
 import { getFirestore, collection, getDocs, updateDoc, doc, getDoc, setDoc } from "firebase/firestore";
@@ -35,7 +35,13 @@ export function CuentaScreen() {
     const actualizarDatos = async () => {
         try {
             if(user.contrasena === '' || user.nombre === '' || user.edad === ''){
-              Alert.alert("No se permite actualizar campos vacíos");
+              ToastAndroid.showWithGravityAndOffset(
+                'No se permiten actualizar campos vacíos.',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+              );
             }else{
               // Consulta para encontrar el documento con el correo electrónico dado
               const querySnapshot = await getDocs(collection(db, 'usuarios'));
@@ -55,7 +61,13 @@ export function CuentaScreen() {
                 nombre: user.nombre,
               });
               setIsDirty(false);
-              Alert.alert("Éxito", "Datos actualizados correctamente");
+              ToastAndroid.showWithGravityAndOffset(
+                'Datos actualizados correctamente',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+              );
             }
           } catch (error) {
             console.error("Error al actualizar los datos:", error);

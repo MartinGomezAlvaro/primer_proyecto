@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { UserProvider } from './context/UserContext.js';
-
+import { LogBox } from 'react-native';
 
 
 import WelcomeScreen from './navigation/screens/WelcomeScreen.js';
@@ -15,6 +15,7 @@ import SplashScreen from './navigation/screens/SplashScreen.js';
 
 function App() {
   const Stack = createNativeStackNavigator();
+  LogBox.ignoreAllLogs();
 
   return (
     <UserProvider>
