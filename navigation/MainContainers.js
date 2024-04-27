@@ -5,6 +5,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { DrawerContentScrollView, DrawerItem, createDrawerNavigator } from '@react-navigation/drawer';
 import { StyleSheet, View, Text, TextInput, Button, ScrollView, TouchableOpacity, Modal, SafeAreaView, Image } from 'react-native';
 import Colors from '../constants/colors';
+import { UserContext } from '../context/UserContext';
+import { useContext } from 'react';
 
 // Screens
 import HomeScreen from './screens/HomeScreen';
@@ -13,6 +15,7 @@ import SettingsScreen from './screens/SettingsScreen';
 import RutasScreen from './screens/RutasScreen';
 import Favoritos from './screens/FavoritosScreen';
 import { CuentaScreen } from './screens/CuentaScreen';
+import WelcomeScreen from './screens/WelcomeScreen';
 
 
 //Screen names
@@ -22,11 +25,15 @@ const settingsName = "Llegadas";
 const rutasName = "Rutas";
 const favoritosName = "Favoritos"
 const CuentaName = "Cuenta"
+const WelcomeName = "Welcome"
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 const ProfileScreenWithDrawer = () => {
+
+  const {clearData} = useContext(UserContext);
+
   return (
     <Drawer.Navigator
     initialRouteName={homeName}
@@ -64,6 +71,7 @@ const ProfileScreenWithDrawer = () => {
                   <Ionicons name="home-outline" color={color} size={size} />
                 )}
           />
+          <View style={styles.separator} />
           <DrawerItem label={'Favoritos'} onPress={() => {
             props.navigation.navigate(favoritosName)
           }}
@@ -76,8 +84,7 @@ const ProfileScreenWithDrawer = () => {
                     <Ionicons name="star-outline" color={color} size={size} />
                   )}
           />
-        </DrawerContentScrollView>
-        <View style={styles.bottomDrawerSection}>
+          <View style={styles.bottomDrawerSection}>
           <DrawerItem 
             label={'Cuenta'} 
             onPress={() => props.navigation.navigate(CuentaName)}
@@ -91,8 +98,21 @@ const ProfileScreenWithDrawer = () => {
             )}
           />
         </View>
+        </DrawerContentScrollView>
+        <DrawerItem label={'Salir'} onPress={() => {
+            props.navigation.navigate(WelcomeName),
+            clearData()
+          }}
+          focused={focused === favoritosName}
+                  activeBackgroundColor={Colors.ORANGE}
+                  inactiveBackgroundColor={Colors.GRAY_LIGHT}
+                  inactiveTintColor={Colors.BLACK}
+                  activeTintColor={Colors.WHITE}
+                  icon={({ color, size }) => (
+                    <Ionicons name="exit" color={color} size={size} />
+                  )}
+          />
         </>
-        
       );
     }}>
       <Drawer.Screen name={homeName} component={HomeScreen} />
@@ -149,5 +169,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderTopColor: '#f4f4f4',
     borderTopWidth: 1,
+  },
+  separator: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    width: '100%',
+    marginVertical: 5,
   },
 });

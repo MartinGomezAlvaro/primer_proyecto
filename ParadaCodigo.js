@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, Button, FlatList, Modal } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Button, FlatList, Modal, TouchableOpacity, Share} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { UserContext } from './context/UserContext';
 import { useContext } from "react"
@@ -78,6 +78,26 @@ export default function ParadaCodigo() {
       }
     }
   };
+
+  const handleCompartir = async ({item}) => {
+    try {
+      const result = await Share.share({
+        message:
+        `Datos de la parada:\nRuta: ${item.lineName}\nHora de salida: ${item.expectedArrival}\nParada: ${item.stationName}\nDestino: ${item.destinationName}`,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+  }
   
 
   const renderItem = ({ item }) => (
@@ -90,11 +110,16 @@ export default function ParadaCodigo() {
       <Text>{item.stationName}</Text>
       <Text style={styles.datosTitle}>Destino:</Text>
       <Text>{item.destinationName}</Text>
-      <IconButton
-        iconName={favoritos[item.id] ? 'star' : 'star-outline'}
-        onPress={() => handleAgregarFavorito(item)}
-        item={item} // Pasar el objeto item como argumento adicional
-      />
+      <View style={styles.compartir}>
+        <IconButton
+          iconName={favoritos[item.id] ? 'star' : 'star-outline'}
+          onPress={() => handleAgregarFavorito(item)}
+          item={item} // Pasar el objeto item como argumento adicional
+        />
+        <TouchableOpacity onPress={() => handleCompartir({item})} style={styles.botonCompartir}>
+          <Ionicons name="share" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -204,5 +229,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     textTransform: 'uppercase',
+  },
+  compartir: {
+    flexDirection: 'row',
+  },
+  botonCompartir: {
+    marginLeft: 20,
   },
 });

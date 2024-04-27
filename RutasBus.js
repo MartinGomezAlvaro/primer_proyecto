@@ -41,10 +41,22 @@ const BusRouteScreen = () => {
           const coords = `${lat}, ${lon}`;
           setCoordinates(coords);
         } else {
-          setCoordinates('No se encontraron coordenadas para el lugar especificado');
+          setCoordinates('No se encontraron coordenadas');
         }
       })
       .catch(error => console.error('Error fetching coordinates:', error));
+  };
+
+  // Función para establecer la ubicación como origen
+  const setAsOrigin = () => {
+    setOrigin(coordinates);
+    setModalVisible(false); // Cierra el modal después de establecer el valor
+  };
+
+  // Función para establecer la ubicación como destino
+  const setAsDestination = () => {
+    setDestination(coordinates);
+    setModalVisible(false); // Cierra el modal después de establecer el valor
   };
 
   const renderItem = (route, index) => (
@@ -123,12 +135,28 @@ const BusRouteScreen = () => {
                   style={{ marginTop: 20, marginBottom: 20 }} // Ajusta el valor de marginTop según sea necesario
                 />
                 <TextInput
-                  style={[styles.inputModal, { marginTop: 20 }]}
+                  style={[styles.inputModal, { marginTop: 20, color: '#999999', pointerEvents: 'none'}]}
                   value={coordinates}
                   placeholderTextColor="#ffffff" // Color del texto del placeholder
                   placeholder="Coordenadas"
-                  editable={true}
+                  editable={false}
                 />
+                <View style={styles.buttonContainer}>
+                  <Button 
+                    color= "#006400"
+                    title="Establecer como Origen" 
+                    onPress={setAsOrigin} 
+                    style={{ marginTop: 20, marginBottom: 20 }} 
+                  />
+                </View>
+                <View style={styles.buttonContainer}>
+                  <Button 
+                    color= "#006400"
+                    title="Establecer como Destino" 
+                    onPress={setAsDestination} 
+                    style={{ marginBottom: 20 }} 
+                  />
+                </View>
                 <Button 
                   color= "#006400"
                   title="Cerrar" 
@@ -191,6 +219,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   buttonContainer: {
+    marginBottom: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
