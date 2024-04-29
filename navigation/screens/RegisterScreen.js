@@ -39,7 +39,6 @@ export function RegisterScreen() {
               edad: edad,
               nombre: nombre
             });
-            alert("Guardado exitosamente");
             navigation.navigate('Main');
             ToastAndroid.showWithGravityAndOffset(
               'Usuario creado correctamente',
