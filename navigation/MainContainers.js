@@ -84,7 +84,8 @@ const ProfileScreenWithDrawer = () => {
                     <Ionicons name="star-outline" color={color} size={size} />
                   )}
           />
-          <View style={styles.bottomDrawerSection}>
+          <View style={styles.separator} />
+          <View>
           <DrawerItem 
             label={'Cuenta'} 
             onPress={() => props.navigation.navigate(CuentaName)}
@@ -99,11 +100,11 @@ const ProfileScreenWithDrawer = () => {
           />
         </View>
         </DrawerContentScrollView>
-        <DrawerItem label={'Salir'} onPress={() => {
+        <DrawerItem style={styles.bottomDrawerSection} label={'Salir'} onPress={() => {
             props.navigation.navigate(WelcomeName),
             clearData()
           }}
-          focused={focused === favoritosName}
+          focused={focused === WelcomeName}
                   activeBackgroundColor={Colors.ORANGE}
                   inactiveBackgroundColor={Colors.GRAY_LIGHT}
                   inactiveTintColor={Colors.BLACK}
