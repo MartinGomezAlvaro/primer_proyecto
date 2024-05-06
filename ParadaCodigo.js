@@ -225,7 +225,7 @@ export default function ParadaCodigo() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Se han realizado muchas peticiones de API en muy poco tiempo. Inténtelo más tarde.</Text>
+            <Text style={styles.modalText}>Se han realizado muchas búsquedas en muy poco tiempo. Inténtelo más tarde.</Text>
             <Button color= "#006400" title="OK" onPress={() => setModalVisible(false)} />
           </View>
         </View>
