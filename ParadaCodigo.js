@@ -8,42 +8,84 @@ import appFirebase from './database/firebase';
 import { addDoc, collection, getDocs, getFirestore, deleteDoc, doc, query, where } from "firebase/firestore";
 import { LinearGradient } from 'expo-linear-gradient';
 
-
-const db = getFirestore(appFirebase)
+const db = getFirestore(appFirebase);
 
 export default function ParadaCodigo() {
 
   const [modalVisibleSuccess, setModalVisibleSuccess] = useState(false);
-  const {correo} = useContext(UserContext)
-
+  const [modalVisible, setModalVisible] = useState(false)
+  const {correo} = useContext(UserContext);
   const [buses, setBuses] = useState([]);
   const [parada, setParada] = useState('');
   const [favoritos, setFavoritos] = useState({}); // Estado para almacenar favoritos
+  const [loading, setLoading] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false); // Estado para controlar si el botón está desactivado
+  const [loadingText, setLoadingText] = useState(""); // Estado para controlar el texto de carga
 
-
-  const fetchBus = (parada) => {
-    fetch(`https://api.tfl.gov.uk/StopPoint/${parada}/Arrivals`)
+  const fetchBus = (paradaNombre) => {
+    setLoadingText("Cargando"); // Cambiar el texto a "Cargando" al iniciar la búsqueda
+    fetch(`https://api.tfl.gov.uk/StopPoint/Search?query=${paradaNombre}`)
       .then(response => response.json())
       .then(data => {
-        console.log(data); // Mostrar los datos en la consola
-        // Inicializa el estado de favoritos para cada nuevo conjunto de datos
-        const favoritosInicial = {};
-        data.forEach(item => {
-          favoritosInicial[item.id] = false;
-        });
-        setFavoritos(favoritosInicial);
-        setBuses(data);
+        console.log("Resultado de la primera llamada:", data); // Imprimir resultado de la primera llamada
+        setLoading(false); // Establecer el estado de carga en false una vez que se recibe la respuesta
+        if (data.matches) {
+          const paradas = data.matches;
+          const idsParadas = paradas.map(parada => parada.id);
+          const fetchPromises = idsParadas.map(id => fetch(`https://api.tfl.gov.uk/StopPoint/${id}/Arrivals`));
+          Promise.all(fetchPromises)
+            .then(responses => Promise.all(responses.map(response => response.json())))
+            .then(arrivalsData => {
+              console.log("Resultado de la segunda llamada:", arrivalsData); // Imprimir resultado de la segunda llamada
+              const exceededRateLimit = arrivalsData.some(response => response.message && response.message.startsWith('Rate limit is exceeded.'));
+              if (exceededRateLimit) {
+                // Mostrar modal de error de límite de velocidad
+                setModalVisible(true);
+                setLoadingText("Límite de búsqueda alcanzado");
+              } else {
+                const allBuses = arrivalsData.flatMap(arrival => arrival);
+                const favoritosInicial = {};
+                allBuses.forEach(item => {
+                  favoritosInicial[item.id] = false;
+                });
+                setFavoritos(favoritosInicial);
+                setBuses(allBuses);
+                setLoadingText(null); // Ocultar el texto de carga si se muestran los resultados
+              }
+            })
+            .catch(error => {
+              console.error('Error al obtener datos de llegadas:', error);
+            });
+        } else {
+          console.log('No se encontraron coincidencias para la búsqueda');
+          setLoadingText("No se encontraron resultados"); // Establecer el texto cuando no hay resultados
+        }
       })
       .catch(error => {
-        console.error('Error al obtener datos:', error);
+        setLoading(false); // Establecer el estado de carga en false en caso de error
+        console.error('Error al realizar la búsqueda:', error);
       });
   };
+  
+  useEffect(() => {
+    if (buttonDisabled) {
+      const timer = setTimeout(() => {
+        setButtonDisabled(false);
+      }, 1000);
+
+      return () => clearTimeout(timer); // Limpiar el temporizador al desmontar el componente
+    }
+  }, [buttonDisabled]);
 
   const handleBuscar = () => {
-    if (parada) {
-      fetchBus(parada); // Aquí se pasa el valor de 'parada' a la función fetchBus
+    if (parada && !loading && !buttonDisabled) {
+      setBuses([]); // Limpiar los resultados anteriores
+      setLoading(true); // Establecer el estado de carga en true
+      setButtonDisabled(true); // Desactivar el botón al hacer clic
+      setLoadingText("Cargando"); // Mostrar el texto de carga al iniciar la búsqueda
+      fetchBus(parada);
     } else {
-      console.log('Por favor, ingrese un código de parada');
+      console.log('Por favor, ingrese el nombre de la parada');
     }
   };
 
@@ -135,15 +177,29 @@ export default function ParadaCodigo() {
           style={styles.input}
           value={parada}
           onChangeText={text => setParada(text)}
-          placeholder="Ingrese el identificador de la parada"
+          placeholder="Ingrese el nombre de la parada"
         />
-        <Button  color= "rgb(0,0,0)" title="Buscar" onPress={handleBuscar} />
+        <Button 
+          color= "rgb(0,0,0)" 
+          title="Buscar" 
+          onPress={handleBuscar} 
+          disabled={buttonDisabled} // Aquí se establece la propiedad disabled
+        />
       </View>
-      <FlatList
-        data={buses}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-      />
+
+      {loadingText ? ( // Verificar si hay texto de carga
+        <Text style={styles.loadingText}>{loadingText}</Text>
+      ) : (
+        buses.length === 0 ? ( // Verificar si buses está vacío
+          <Text style={styles.noResultsText}>No se encontraron resultados</Text>
+        ) : (
+          <FlatList
+            data={buses}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        )
+      )}
 
       {/* Modal para mostrar el mensaje de éxito */}
       <Modal
@@ -159,10 +215,24 @@ export default function ParadaCodigo() {
           </View>
         </View>
       </Modal>
+
+      {/* Modal para indicar que se han realizado muchas peticiones a la API*/}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Se han realizado muchas peticiones de API en muy poco tiempo. Inténtelo más tarde.</Text>
+            <Button color= "#006400" title="OK" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -235,5 +305,17 @@ const styles = StyleSheet.create({
   },
   botonCompartir: {
     marginLeft: 20,
+  },
+  loadingText: {
+    marginBottom: 20,
+    fontWeight: 'bold',
+    color: 'black',
+    textAlign: 'center',
+  },
+  noResultsText: {
+    marginBottom: 20,
+    fontWeight: 'bold',
+    color: 'black',
+    textAlign: 'center',
   },
 });

@@ -12,6 +12,7 @@ import { LoginScreen } from './navigation/screens/LoginScreen';
 import { RegisterScreen } from './navigation/screens/RegisterScreen';
 import MainContainer from './navigation/MainContainers.js';
 import SplashScreen from './navigation/screens/SplashScreen.js';
+import MapScreen from './MapScreen.js';
 
 function App() {
   const Stack = createNativeStackNavigator();
@@ -26,6 +27,7 @@ function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Registro" component={RegisterScreen} />
           <Stack.Screen name="Main" component={MainContainer} options={{ headerShown: false }} />
+          <Stack.Screen name="Maps" component={MapScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

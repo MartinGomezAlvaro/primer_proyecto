@@ -2,20 +2,37 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, Button, FlatList, TouchableOpacity, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
+
 export default function ParadaNombreScreen() {
   const [parada, setParada] = useState('');
   const [buses, setBuses] = useState([]);
   const [selectedParada, setSelectedParada] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorText, setErrorText] = useState('');
 
   const fetchBus = (paradaNombre) => {
+    setLoading(true); // Mostrar el texto de carga al iniciar la búsqueda
+    setErrorText(''); // Reiniciar el texto de error
     fetch(`https://api.tfl.gov.uk/StopPoint/Search?query=${paradaNombre}`)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
-        setBuses(data.matches);
+        setLoading(false); // Ocultar el texto de carga al recibir la respuesta
+        if (data.matches && data.matches.length > 0) {
+          setBuses(data.matches);
+        } else {
+          setErrorText('No se encontraron paradas'); // Mostrar el texto de error si no se encontraron paradas
+        }
       })
       .catch(error => {
+        setLoading(false); // Ocultar el texto de carga en caso de error
         console.error('Error al obtener datos:', error);
+        setErrorText('Error al obtener datos'); // Mostrar el texto de error si hay un error de red
       });
   };
 
@@ -23,14 +40,13 @@ export default function ParadaNombreScreen() {
     if (parada) {
       fetchBus(parada);
     } else {
-      console.log('Por favor, ingrese el nombre de la parada');
+      setErrorText('Por favor, ingrese el nombre de la parada'); // Mostrar el texto de error si no se ingresa el nombre de la parada
     }
   };
 
   const renderParada = ({ item }) => (
     <TouchableOpacity style={styles.paradaCard} onPress={() => mostrarDetalleParada(item)}>
       <Text style={styles.paradaNombre}>{item.name}</Text>
-      <Text style={styles.paradaId}>ID: {item.id}</Text>
     </TouchableOpacity>
   );
 
@@ -51,11 +67,15 @@ export default function ParadaNombreScreen() {
         />
         <Button  color= "rgb(0,0,0)" title="Buscar" onPress={handleBuscar} />
       </View>
-      <FlatList
-        data={buses}
-        renderItem={renderParada}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      {loading && <Text style={styles.loadingText}>Cargando...</Text>}
+      {errorText !== '' && <Text style={styles.errorText}>{errorText}</Text>}
+      {!loading && errorText === '' && (
+        <FlatList
+          data={buses}
+          renderItem={renderParada}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      )}
       {/* Ventana modal para mostrar detalles de la parada */}
       <Modal
         animationType="slide"
@@ -76,6 +96,8 @@ export default function ParadaNombreScreen() {
                 <Text style={styles.infoModal}>{selectedParada.lat}</Text>
                 <Text style={styles.infoModalTitle}>Longitud:</Text>
                 <Text style={styles.infoModal}>{selectedParada.lon}</Text>
+                <Text style={styles.infoModalTitle}>ID:</Text>
+                <Text style={styles.infoModal}>{selectedParada.id}</Text>
               </>
             )}
             <Button color= "#006400" title="Cerrar" onPress={() => setModalVisible(false)} />
@@ -122,10 +144,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  paradaId: {
-    fontSize: 16,
-    color: 'grey',
-  },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
@@ -164,6 +182,17 @@ const styles = StyleSheet.create({
   infoModal: {
     color: 'white',
     marginBottom: 15,
+    fontWeight: 'bold',
+  },
+  loadingText: {
+    textAlign: 'center',
+    marginBottom: 10,
+    color: 'black',
+  },
+  errorText: {
+    textAlign: 'center',
+    marginBottom: 10,
+    color: 'black',
     fontWeight: 'bold',
   },
 });
