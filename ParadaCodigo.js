@@ -146,7 +146,7 @@ export default function ParadaCodigo() {
     <View style={styles.pokemonBlock}>
       <Text style={styles.datosTitle}>Ruta:</Text>
       <Text>{item.lineName}</Text>
-      <Text style={styles.datosTitle}>Hora de salida:</Text>
+      <Text style={styles.datosTitle}>Hora de llegada:</Text>
       <Text>{item.expectedArrival}</Text>
       <Text style={styles.datosTitle}>Parada:</Text>
       <Text>{item.stationName}</Text>
