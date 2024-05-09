@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, BackHandler } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import {LinearGradient} from 'expo-linear-gradient';
+import { LinearGradient } from 'expo-linear-gradient';
 
-
-const WeatherWidget = () => {
+const WeatherWidget = ({ navigation }) => {
     const [weatherData, setWeatherData] = useState(null);
     const [currentDate, setCurrentDate] = useState('');
     const [currentTime, setCurrentTime] = useState('');
@@ -27,7 +26,20 @@ const WeatherWidget = () => {
             setCurrentTime(getFormattedTime(now));
         }, 1000);
 
-        return () => clearInterval(interval);
+        const backAction = () => {
+            // Evitar que el usuario navegue hacia atrás
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            backAction
+        );
+
+        return () => {
+            clearInterval(interval);
+            backHandler.remove();
+        };
     }, []);
 
     const getFormattedDate = (date) => {
